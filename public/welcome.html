@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Loves</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, #000011 0%, #000000 100%);
+            font-family: 'Times New Roman', Times, serif;
+            user-select: none;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        #galaxy {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #rotatingContainer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            transform-style: preserve-3d;
+            transform-origin: center center;
+            z-index: 2;
+            transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg);
+        }
+
+        .text-particle {
+            position: absolute;
+            white-space: nowrap;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+            will-change: transform, opacity;
+            user-select: none;
+        }
+
+        .image-particle {
+            position: absolute;
+            pointer-events: none;
+            max-width: 50px;
+            max-height: 50px;
+            will-change: transform, opacity;
+            user-select: none;
+            border-radius: 5px;
+            filter: drop-shadow(0 0 4px #fff);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="galaxy"></div>
+    <div id="rotatingContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+    <script>
+        const rotatingContainer = document.getElementById('rotatingContainer');
+        const galaxy = document.getElementById('galaxy');
+
+        const messages = [
+            "Em à",
+            "Em là người đặc biệt 💖",
+            "Anh yêu em",
+            "Mãi yêu"
+        ];
+        const textColor = "#ff7487";
+        const imageURL = " ";
+        const icons = ["❤️", "❤", "💗"];
+
+        const maxParticles = 150;
+        const particleInterval = 800;
+        const activeParticles = new Set();
+
+        function createTextParticle() {
+            if (activeParticles.size >= maxParticles) return;
+            const el = document.createElement('div');
+            const isIcon = Math.random() < 0.3;
+            el.className = 'text-particle';
+            el.textContent = isIcon
+                ? icons[Math.floor(Math.random() * icons.length)]
+                : messages[Math.floor(Math.random() * messages.length)];
+            el.style.fontSize = (isIcon ? 20 : 18) + Math.random() * 10 + 'px';
+            el.style.color = textColor;
+            el.style.opacity = 0;
+
+            rotatingContainer.appendChild(el);
+
+            const w = el.offsetWidth || 50;
+            el.style.left = Math.random() * (window.innerWidth - w) + 'px';
+            const translateZ = -Math.random() * 300;
+            const startY = -30, endY = window.innerHeight + 30;
+            const duration = 8000 + Math.random() * 4000;
+            const t0 = performance.now();
+
+            function anim(t) {
+                const dt = t - t0;
+                if (dt < duration) {
+                    const p = dt / duration;
+                    el.style.transform = `translateY(${startY + p * (endY - startY)}px) translateZ(${translateZ}px)`;
+                    el.style.opacity = p < 0.1 ? p * 10 : (p > 0.9 ? (1 - p) * 10 : 1);
+                    requestAnimationFrame(anim);
+                } else {
+                    el.remove();
+                    activeParticles.delete(el);
+                }
+            }
+
+            activeParticles.add(el);
+            requestAnimationFrame(anim);
+        }
+
+        function createImageParticle() {
+            if (activeParticles.size >= maxParticles) return;
+            const el = document.createElement('img');
+            el.src = imageURL;
+            el.className = 'image-particle';
+            el.style.opacity = 0;
+
+            rotatingContainer.appendChild(el);
+
+            const w = el.offsetWidth || 40;
+            el.style.left = Math.random() * (window.innerWidth - w) + 'px';
+
+            const translateZ = -Math.random() * 300;
+            const startY = -50, endY = window.innerHeight + 50;
+            const duration = 8000 + Math.random() * 4000;
+            const t0 = performance.now();
+
+            function anim(t) {
+                const dt = t - t0;
+                if (dt < duration) {
+                    const p = dt / duration;
+                    el.style.transform = `translateY(${startY + p * (endY - startY)}px) translateZ(${translateZ}px)`;
+                    el.style.opacity = p < 0.1 ? p * 10 : (p > 0.9 ? (1 - p) * 10 : 1);
+                    requestAnimationFrame(anim);
+                } else {
+                    el.remove();
+                    activeParticles.delete(el);
+                }
+            }
+
+            activeParticles.add(el);
+            requestAnimationFrame(anim);
+        }
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 150;
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0);
+        galaxy.appendChild(renderer.domElement);
+
+        const starsCount = 500;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(starsCount * 3);
+        for (let i = 0; i < starsCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 400;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 400;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 400;
+        }
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const textureLoader = new THREE.TextureLoader();
+        const starTexture = textureLoader.load('https://threejs.org/examples/textures/sprites/disc.png');
+
+        const material = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.5,
+            map: starTexture,
+            transparent: true,
+            alphaTest: 0.2,
+            depthWrite: false
+        });
+
+        const stars = new THREE.Points(geometry, material);
+        scene.add(stars);
+
+        function animateStars() {
+            requestAnimationFrame(animateStars);
+            renderer.render(scene, camera);
+        }
+        animateStars();
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setInterval(() => {
+                for (let i = 0; i < 4; i++) {
+                    createTextParticle();
+                    if (Math.random() < 0.5) createImageParticle();
+                }
+            }, 300);
+
+        });
+
+        let audioStarted = false;
+        document.body.addEventListener('click', () => {
+            if (audioStarted) return;
+            const audio = new Audio('./music.mp3');
+            audio.loop = true;
+            audio.play().catch(() => {
+                console.log("Không thể phát nhạc tự động.");
+            });
+            audioStarted = true;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+            const rotY = ((e.clientX - cx) / cx) * 10;
+            const rotX = (-(e.clientY - cy) / cy) * 10;
+            rotatingContainer.style.transform =
+                `translate(-50%, -50%) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+
+</body>
+
+</html>

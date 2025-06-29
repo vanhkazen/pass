@@ -1,0 +1,68 @@
+body {
+  background: #0f0f0f;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+
+.neon-box {
+  background: #111;
+  padding: 2rem;
+  border-radius: 20px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 0 15px #0ff, 0 0 30px #0ff;
+  border: 2px solid #0ff;
+  text-align: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+  }
+  50% {
+    box-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+  }
+  100% {
+    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+input {
+  background: #222;
+  color: #0ff;
+  border: 1px solid #0ff;
+  box-shadow: 0 0 5px #0ff;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+button {
+  padding: 12px;
+  font-size: 16px;
+  background: #0ff;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 0 10px #0ff;
+}
+
+button:hover {
+  background: #00bcd4;
+}
